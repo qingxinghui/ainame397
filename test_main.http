@@ -1,0 +1,117 @@
+# Test your FastAPI endpoints
+
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/hello/User
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/auth/code?email=526288003@qq.com
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/auth/register
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email":"964687160@qq.com",
+  "username": "xuda",
+  "password": "111111",
+  "confirm_password": "111111",
+  "code": "1203"
+}
+
+
+###
+POST http://127.0.0.1:8000/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email":"964687160@qq.com",
+  "password": "111111"
+}
+
+###
+POST http://127.0.0.1:8000/names/get_names
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+
+{
+  "category": "宠物名",
+  "length": "两字",
+  "gender": "不限",
+  "other": "是一只非常调皮的金毛犬，毛发金黄，希望名字听起来活泼可爱"
+}
+
+###
+POST http://127.0.0.1:8000/names/get_names
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+
+{
+  "category": "企业名",
+
+  "other": "大气，最好和经济相关。"
+}
+###
+POST http://127.0.0.1:8000/names/generate
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+
+{
+  "category": "企业名",
+
+  "other": "大气，最好和经济相关。"
+}
+
+
+###
+POST http://127.0.0.1:8000/names/feedback
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+
+{
+  "thread_id": "e7fa7364-a124-4a84-b08e-1281095fb374",
+  "category": "企业名",
+  "feedback": "我喜欢上一轮生成的‘熠新’这个名字。请保留它，把其他4个名字的第一个字全部换成五行属‘水’的字。"
+}
+
+
+### 第一轮：首次起名
+POST http://127.0.0.1:8000/names/generate
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+
+{
+  "category": "企业名",
+  "surname": "",
+  "length": "五个字以上",
+  "gender": "不限",
+  "other": "一家做环保新材料的初创公司",
+  "exclude": []
+}
+
+
+###
+POST http://127.0.0.1:8000/knowledge/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="company_rules.txt"
+Content-Type: text/plain
+
+< ./company_rules.txt
+--WebAppBoundary--
+
+
+

@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+uploads/
+chroma_rag_db/
