@@ -9,9 +9,13 @@ langchain_deepseek==1.1.0
 langchain_ollama==1.1.0
 langchain_text_splitters==1.1.2
 langgraph==1.2.7
+langgraph-checkpoint-postgres==3.1.0
+psycopg[binary]>=3.3,<4
 psycopg_pool==3.3.1
-pwdlib==0.3.0
+pwdlib[argon2]==0.3.0
 pydantic==2.13.4
+python-multipart==0.0.20
+pypinyin>=0.53,<1
 PyJWT==2.13.0
 python-dotenv==1.2.2
 redis==8.0.1

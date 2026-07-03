@@ -42,6 +42,7 @@ class AuthHandler(metaclass=SingletonMeta):
             exp = datetime.now() + settings.JWT_ACCESS_TOKEN_EXPIRES
         else:
             exp = datetime.now() + settings.JWT_REFRESH_TOKEN_EXPIRES
+        payload["exp"] = exp
         return jwt.encode(payload, self.secret, algorithm='HS256')
 
     # 生成令牌 长字符串，
@@ -84,7 +85,7 @@ class AuthHandler(metaclass=SingletonMeta):
         # REFRESH TOKEN: 不可用（过期，或有问题），都用401错误
         try:
             payload = jwt.decode(token, self.secret, algorithms=['HS256'])
-            if payload['sub'] != int(TokenTypeEnum.REFRESH_TOKEN.value):
+            if str(payload['sub']) != str(TokenTypeEnum.REFRESH_TOKEN.value):
                 raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail='Token类型错误')
             return payload['iss']
         except jwt.ExpiredSignatureError:

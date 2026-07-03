@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="名序 - 融合国学、品牌策略与创意表达的 AI 起名助手">
+  <title>名序 · AI 起名</title>
+  <link rel="stylesheet" href="/styles.css?v=3">
+  <link rel="stylesheet" href="/validation.css?v=1">
+  <link rel="stylesheet" href="/community.css?v=1">
+</head>
+<body>
+  <div class="grain"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="名序首页">
+      <span class="seal">名</span>
+      <span><b>名序</b><small>AI NAMING STUDIO</small></span>
+    </a>
+    <nav>
+      <a href="#studio">起名工坊</a>
+      <a href="#method">命名方法</a>
+      <a href="/docs" target="_blank">API 文档</a>
+    </nav>
+    <button id="authButton" class="ghost-button">登录 / 注册</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">东方文字智慧 × 当代品牌策略</p>
+        <h1>好名字，<br><em>自有来处。</em></h1>
+        <p class="lead">从诗经楚辞的文脉，到品牌竞争的语境。让每一个名字，都经得起读、写、记与时间。</p>
+        <a class="primary-button" href="#studio">开始起名 <span>→</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="mountain mountain-back"></div>
+        <div class="mountain mountain-front"></div>
+        <div class="vertical-copy">取意于心<br>成名于世</div>
+        <span class="floating-word word-one">雅</span>
+        <span class="floating-word word-two">序</span>
+      </div>
+    </section>
+
+    <section id="studio" class="studio-section">
+      <div class="section-heading">
+        <span>01</span>
+        <div><p>命名工坊</p><h2>告诉我，你想为谁取名</h2></div>
+      </div>
+
+      <div class="studio-layout">
+        <div class="category-panel" role="tablist" aria-label="起名类型">
+          <button class="category-card active" data-category="宝宝起名">
+            <span class="category-index">壹</span><i>PERSONAL</i>
+            <b>宝宝起名</b><small>男孩 · 女孩 · 国学推演</small>
+          </button>
+          <button class="category-card" data-category="商业/品牌起名">
+            <span class="category-index">贰</span><i>BRAND</i>
+            <b>商业 / 品牌</b><small>行业竞品 · 品牌调性 · 域名</small>
+          </button>
+          <button class="category-card" data-category="宠物起名">
+            <span class="category-index">叁</span><i>CREATIVE</i>
+            <b>宠物起名</b><small>猫狗鸟鱼 · 性格 · 趣味记忆</small>
+          </button>
+          <button class="category-card" data-category="虚拟IP起名">
+            <span class="category-index">肆</span><i>VIRTUAL IP</i>
+            <b>虚拟 IP 起名</b><small>吉祥物 · 游戏角色 · 传播力</small>
+          </button>
+        </div>
+
+        <form id="namingForm" class="naming-form">
+          <div id="personalFields" class="field-group category-fields">
+            <label>宝宝性别<select name="person_type"><option value="男孩">男孩</option><option value="女孩">女孩</option></select></label>
+            <div class="field-row">
+              <label>姓氏<input name="surname" placeholder="例如：林" maxlength="8"></label>
+              <label>名字风格<select name="name_style"><option value="">不限风格</option><option>古典雅致</option><option>现代简洁</option><option>温润书卷</option><option>大气沉稳</option><option>灵动清新</option></select></label>
+            </div>
+            <label>偏好典籍<input name="preferred_classics" value="诗经、楚辞" placeholder="用顿号分隔"></label>
+            <label class="switch-line"><input id="useBazi" name="use_bazi" type="checkbox"><span class="switch"></span>加入传统八字五行参考</label>
+            <div id="birthFields" class="field-row hidden">
+              <label>出生日期<input name="birth_date" type="date"></label>
+              <label>出生时间<input name="birth_time" type="time"></label>
+            </div>
+          </div>
+
+          <div id="brandFields" class="field-group category-fields hidden">
+            <label>企业行业<select name="industry"><option value="建材行业">建材企业</option><option value="水产行业">水产企业</option><option value="科技互联网">科技 / 互联网</option><option value="餐饮食品">餐饮 / 食品</option><option value="教育培训">教育 / 培训</option><option value="医疗健康">医疗 / 健康</option><option value="母婴服务">母婴服务</option><option value="金融咨询">金融 / 咨询</option><option value="文化传媒">文化 / 传媒</option><option value="农业养殖">农业 / 养殖</option><option value="物流贸易">物流 / 贸易</option><option value="其他">其他行业</option></select></label>
+            <label id="customIndustryField" class="hidden">自定义行业<input name="industry_custom" placeholder="请输入具体行业"></label>
+            <label>竞品名称<input name="competitors" placeholder="例如：小度、天猫精灵"></label>
+            <label>品牌调性<input name="brand_tone" placeholder="例如：科技感、亲和力、可信赖"></label>
+          </div>
+
+          <div id="petFields" class="field-group category-fields hidden">
+            <label>宠物类型<select name="pet_type"><option value="猫">猫咪</option><option value="狗">狗狗</option><option value="鸟">鸟类</option><option value="鱼">观赏鱼</option><option value="兔">兔子</option><option value="仓鼠">仓鼠</option><option value="爬宠">爬宠</option><option value="其他">其他宠物</option></select></label>
+            <label id="customPetField" class="hidden">自定义类型<input name="ip_type_custom" placeholder="请输入宠物品种或角色类型"></label>
+            <label>性格关键词<input name="personality" placeholder="例如：好奇、话痨、爱收集瓶盖"></label>
+          </div>
+
+          <div id="ipFields" class="field-group category-fields hidden">
+            <label>虚拟 IP 类型<select name="virtual_ip_type"><option value="品牌吉祥物">品牌吉祥物</option><option value="游戏角色">游戏角色</option><option value="动漫角色">动漫角色</option><option value="数字人">数字人</option><option value="短视频账号IP">短视频账号 IP</option><option value="小说角色">小说角色</option><option value="其他">其他虚拟 IP</option></select></label>
+            <label id="customIpField" class="hidden">自定义 IP 类型<input name="virtual_ip_custom" placeholder="请输入角色或 IP 类型"></label>
+            <label>角色关键词<input name="ip_personality" placeholder="例如：勇敢、治愈、未来感、反差萌"></label>
+          </div>
+
+          <div class="field-row">
+            <label>期望字数<input name="length" placeholder="例如：2 到 3 个字"></label>
+            <label>避讳字<input name="exclude" placeholder="用顿号分隔，可不填"></label>
+          </div>
+          <label>具体期待<textarea name="other" rows="4" placeholder="描述气质、画面、使用场景，越具体越好"></textarea></label>
+
+          <div class="form-footer">
+            <p><span class="status-dot"></span><span id="loginHint">登录后可生成并保存多轮记录</span></p>
+            <button class="primary-button submit-button" type="submit"><span class="button-text">推演五个名字</span><span class="loader hidden"></span></button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="resultsSection" class="results-section hidden">
+      <div class="section-heading"><span>02</span><div><p>推演报告</p><h2>名字与它们的来处</h2></div></div>
+      <div id="reportSummary" class="report-summary"></div>
+      <div id="nameResults" class="name-grid"></div>
+      <form id="feedbackForm" class="feedback-box">
+        <div><b>继续打磨</b><p>说说你喜欢什么、希望调整什么，我们会沿着这一轮继续推演。</p><button id="publishPoll" class="poll-publish" type="button">发布灵感投票</button></div>
+        <textarea id="feedbackText" required placeholder="例如：保留第二个名字的意境，其余名字希望更清朗一些"></textarea>
+        <button class="ink-button" type="submit">提交修改意见</button>
+      </form>
+    </section>
+
+    <section id="method" class="method-section">
+      <div class="section-heading light"><span>03</span><div><p>我们的尺度</p><h2>不止是“好听”</h2></div></div>
+      <div class="method-grid">
+        <article><span>声</span><h3>音韵顺口</h3><p>审视声调、音节与常见谐音，让名字悦耳而不轻浮。</p></article>
+        <article><span>意</span><h3>出处可信</h3><p>有据可循才引用典籍，不以漂亮的杜撰冒充文化。</p></article>
+        <article><span>形</span><h3>书写清朗</h3><p>兼顾字形、辨识度与日常使用，减少不必要的生僻。</p></article>
+        <article><span>势</span><h3>传播有力</h3><p>从行业语境与记忆成本出发，让品牌名更有生长空间。</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>名序 · AI NAMING STUDIO</span><p>名字是一份温柔而郑重的开始</p></footer>
+
+  <dialog id="authDialog">
+    <button class="dialog-close" aria-label="关闭">×</button>
+    <div class="auth-title"><span class="seal">名</span><div><h2>欢迎来到名序</h2><p>登录后开始你的命名推演</p></div></div>
+    <div class="auth-tabs"><button class="active" data-tab="login">登录</button><button data-tab="register">注册</button></div>
+    <form id="loginForm" class="auth-form">
+      <label>邮箱<input type="email" name="email" required placeholder="name@example.com"></label>
+      <label>密码<input type="password" name="password" required minlength="4"></label>
+      <button class="primary-button" type="submit">登录</button>
+    </form>
+    <form id="registerForm" class="auth-form hidden">
+      <label>邮箱<div class="input-action"><input type="email" name="email" required><button id="sendCode" type="button">发送验证码</button></div></label>
+      <label>用户名<input name="username" required minlength="4"></label>
+      <div class="field-row"><label>密码<input type="password" name="password" required minlength="4"></label><label>确认密码<input type="password" name="confirm_password" required minlength="4"></label></div>
+      <label>验证码<input name="code" required minlength="4" maxlength="4"></label>
+      <button class="primary-button" type="submit">创建账号</button>
+    </form>
+    <p id="authMessage" class="form-message"></p>
+  </dialog>
+
+  <dialog id="assetDialog" class="asset-dialog">
+    <button id="assetDialogClose" class="dialog-close" aria-label="关闭">×</button>
+    <div class="asset-title"><span class="asset-icon">✓</span><div><p>数字资产校验</p><h2 id="assetName">名称校验报告</h2></div></div>
+    <div id="assetLoading" class="asset-loading hidden"><span class="loader"></span><p>正在连接全球注册局查询域名状态…</p></div>
+    <div id="assetContent"></div>
+  </dialog>
+
+  <dialog id="pollDialog" class="poll-dialog">
+    <button id="pollDialogClose" class="dialog-close" aria-label="关闭">×</button>
+    <div class="poll-heading"><span>灵感投票所</span><h2 id="pollDialogTitle">邀请大家帮你选</h2></div>
+    <form id="pollCreateForm">
+      <label>投票标题<input name="title" required maxlength="120" value="帮我选出最合适的名字"></label>
+      <label>补充说明<textarea name="description" rows="3" maxlength="1000" placeholder="可以介绍命名对象、偏好和使用场景"></textarea></label>
+      <div id="pollPreview" class="poll-preview"></div>
+      <button class="primary-button" type="submit">创建投票</button>
+    </form>
+    <div id="pollView" class="hidden"></div>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="/app.js?v=2" defer></script>
+</body>
+</html>

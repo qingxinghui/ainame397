@@ -24,6 +24,15 @@ class WorkFlowState(TypedDict):
     thread_id: str
     history_names: str
     feedback: str
+    preferred_classics: List[str]
+    birth_info: Dict[str, Any]
+    use_bazi: bool
+    industry: str
+    competitors: List[str]
+    brand_tone: List[str]
+    ip_type: str
+    personality: List[str]
+    person_type: str
 
 
 llm = ChatDeepSeek(
@@ -42,18 +51,49 @@ async def supervisor_node(state: WorkFlowState):
     return {}
 
 
+def feedback_instruction(state: WorkFlowState) -> str:
+    if not state.get("feedback"):
+        return ""
+    return f"""
+    这是一次基于上一轮结果的修改请求。
+    上一轮候选及分析：{state.get('history_names', '无')}
+    用户最新意见：{state['feedback']}
+    请保留用户认可的部分，只调整用户要求修改的内容，并重新给出完整报告。
+    """
+
+
+def result_with_history(response: NameResultSchema) -> Dict[str, Any]:
+    history = "\n".join(
+        f"【{item.name}】出处：{item.reference}；寓意：{item.moral}"
+        for item in response.names
+    )
+    return {"final_output": response.model_dump(), "history_names": history}
+
+
 async def human_naming_node(state: WorkFlowState):
     """人名专家节点"""
-    prompt = f"""你是一位精通汉语言文学与传统文化的命名专家。请为用户创作富有文化底蕴的人名。
+    birth_info = state.get("birth_info") or {}
+    bazi_instruction = "不进行八字五行分析。" if not state.get("use_bazi") else f"""
+        请从传统文化角度提供五行参考。出生信息：{birth_info}。
+        不得把简化推演表述为确定命理结论；缺少准确时辰时必须明确说明局限。
+    """
+    prompt = f"""你是一位精通汉语言文学、古典文献和现代汉语音韵的宝宝起名专家。请为新生宝宝创作名字。
+        【命名对象】: {state.get('person_type', '不限')}
         【姓氏】: {state['surname']}
         【性别倾向】: {state['gender']}
         【字数限制】: {state['length']}
         【其它具体要求】: {state['other']}
         【避讳排除字】: {'、'.join(state['exclude'])}
-        原则：平仄协调，优先从《诗经》《楚辞》或唐诗宋词中汲取灵感。请给出 5 个候选方案。"""
+        【偏好典籍】: {'、'.join(state.get('preferred_classics') or ['诗经', '楚辞'])}
+        【传统五行参考】: {bazi_instruction}
+        {feedback_instruction(state)}
+
+        请给出 5 个候选方案并生成详细报告：逐一说明字义、声调音节、常见谐音、文化出处和适用气质。
+        引文必须是真实且有把握的原文；无法确认时应明确写“无直接典籍原句”，不得杜撰出处。
+        人名无需生成域名，domain 留空、domain_status 写“无需查询”。"""
 
     response = await  structured_llm.ainvoke(prompt)
-    return {"final_output": response.model_dump()}
+    return result_with_history(response)
 
 from core.tools import check_com_domain
 from core.rag_service import retrive_user_from_knowledge
@@ -65,40 +105,31 @@ async def company_naming_node(state: WorkFlowState):
     # feedback = state.get("feedback")
     # history_names = state.get("history_names")
 
-    feedback_instruction = ""
-    if state.get("feedback") and state.get("history_names"):
-        feedback_instruction = f"""
-           🟣 警告：这是一次微调请求！
-           【上一轮你生成的名字是】：{state['history_names']}
-           【用户的最新修改意见】：{state['feedback']}
-
-           请严格保留上一轮中用户满意的部分，仅针对【修改意见】对历史名字进行迭代优化！绝不能抛弃历史记录重新随机生成！
-           """
-
     user_id = state.get("user_id")
-    search_query = state.get("other")
+    search_query = " ".join(filter(None, [state.get("industry"), state.get("other")]))
 
     # 1.查 通过用户的要求和useid查询语义数据库
-    rag_context = retrive_user_from_knowledge(user_id, search_query)
+    rag_context = await asyncio.to_thread(retrive_user_from_knowledge, user_id, search_query)
     # 2.用
     prompt = f"""你是一位精通商业品牌传播的资深顾问。请创作符合商业规范的公司名。
     [用户需求]
-    行业或者核心诉求: {state.get("other")}
+    行业/赛道: {state.get('industry') or state.get('other')}
+    核心诉求: {state.get('other')}
+    已知竞品: {'、'.join(state.get('competitors') or []) or '未提供'}
+    品牌调性: {'、'.join(state.get('brand_tone') or []) or '未提供'}
     字数限制: {state['length']}
     避讳排除字: {'、'.join(state['exclude'])}
 
     【用户的专属私有知识库参考】
     {rag_context}
 
-      {feedback_instruction}
-      🔴 核心纪律：如果有用户的修改意见，必须完全服从！给出 5 个候选方案。
+      {feedback_instruction(state)}
+      请给出 5 个候选方案。逐一分析名称辨识度、行业关联、竞品差异、品牌调性、传播与潜在负面联想，
+      并给出纯小写 .com 域名建议。不得声称已经完成实时市场或商标检索；竞品结论仅基于用户提供的信息。
      """
 
     response = await  structured_llm.ainvoke(prompt)
-    memory_list = [f"【{n.name}】寓意：{n.moral}" for n in response.names]
-    names_str = "\n".join(memory_list)
-
-    tasks = [check_com_domain(n.domain) for n in response.names]
+    tasks = [check_com_domain(n.domain) if n.domain else asyncio.sleep(0, result="未提供域名") for n in response.names]
     status = await asyncio.gather(*tasks)
 
     for n,status in zip(response.names, status):
@@ -106,25 +137,34 @@ async def company_naming_node(state: WorkFlowState):
 
     # return {"final_output": response.model_dump()}
     #  "history_names": names_str}  主要是存到数据库，用来下次微调，从数据库中查询出来，给大模型，让他参考这些数据
-    return {"final_output": response.model_dump(), "history_names": names_str}
+    return result_with_history(response)
 
 
 async def pet_naming_node(state: WorkFlowState) -> Dict[str, Any]:
     """宠物起名节点"""
-    prompt = f"""你是一位充满创意的宠物达人。请为用户的宠物起一些富有灵性的名字。
+    prompt = f"""你是一位擅长角色塑造、语言节奏和互联网传播的创意命名师。请完成{state.get('category', '宠物或虚拟IP')}任务。
+    【宠物/角色类型】: {state.get('ip_type') or '未指定'}
     【宠物特征/性格】: {state['other']}
+    【性格与形象关键词】: {'、'.join(state.get('personality') or []) or '未提供'}
     【字数限制】: {state['length']}
     【避讳排除字】: {'、'.join(state['exclude'])}
+    {feedback_instruction(state)}
 
-    原则：亲切好记、富有画面感或软萌感。请给出 5 个候选方案。"""
+    请给出 5 个候选方案，兼顾趣味、叫喊顺口、角色辨识度、昵称衍生和社交媒体记忆点；
+    同时检查明显谐音和负面联想。无需生成域名，domain 留空、domain_status 写“无需查询”。"""
     response = await structured_llm.ainvoke(prompt)
-    return {"final_output": response.model_dump()}
+    return result_with_history(response)
 
 
 # 节点都设计了有4个，如何组成工作流，如何流转
 def route_by_category(state: WorkFlowState):
     """条件路由：根据前端传来的 category 决定走哪个节点"""
-    category_map = {"人名": "human_node", "企业名": "company_node", "宠物名": "pet_node"}
+    category_map = {
+        "人名": "human_node", "个人/宝宝起名": "human_node", "宝宝起名": "human_node",
+        "企业名": "company_node", "商业/品牌起名": "company_node",
+        "宠物名": "pet_node", "宠物/虚拟IP起名": "pet_node",
+        "宠物起名": "pet_node", "虚拟IP起名": "pet_node",
+    }
     # 人名\企业名\宠物名
     category = state.get("category")
     # human\company\pet
@@ -183,13 +223,8 @@ async def close_workflow_graph():
 # 用户传过来的信息  告诉我给什么起名字，这些名字的对应要求有哪些
 async def generate_naming(name_info: NameIn, user_id: int):
     workflowsatae = {
+        **name_info.model_dump(),
         "user_id": user_id,
-        "category": name_info.category,
-        "surname": name_info.surname,
-        "gender": name_info.gender,
-        "length": name_info.length,
-        "other": name_info.other,
-        "exclude": name_info.exclude,
         "final_output": {}
     }
     final_state = await  naming_graph.ainvoke(workflowsatae)
@@ -200,14 +235,9 @@ async def generate_naming_v2(name_info: NameIn, user_id: int):
     # 生成窗口id
     thread_id = str(uuid.uuid4())
     workflowsatae = {
+        **name_info.model_dump(),
         "thread_id": thread_id,
         "user_id": user_id,
-        "category": name_info.category,
-        "surname": name_info.surname,
-        "gender": name_info.gender,
-        "length": name_info.length,
-        "other": name_info.other,
-        "exclude": name_info.exclude,
         "final_output": {}
     }
     config = {"configurable": {"thread_id": thread_id}}
@@ -225,6 +255,12 @@ async def feedback_names(name_info: FeedbackSchema, user_id: int):
         "category": name_info.category
     }
     config = {"configurable": {"thread_id": name_info.thread_id}}
+
+    snapshot = await naming_graph.aget_state(config)
+    if not snapshot.values:
+        raise ValueError("起名会话不存在或已经失效")
+    if str(snapshot.values.get("user_id")) != str(user_id):
+        raise PermissionError("无权访问该起名会话")
 
     final_state = await  naming_graph.ainvoke(update_state, config)
     return {"thread_id": name_info.thread_id, "names": final_state["final_output"]}

@@ -40,7 +40,7 @@ Content-Type: application/json
 POST http://127.0.0.1:8000/names/get_names
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+Authorization: Bearer {{access_token}}
 
 {
   "category": "宠物名",
@@ -53,7 +53,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViI
 POST http://127.0.0.1:8000/names/get_names
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+Authorization: Bearer {{access_token}}
 
 {
   "category": "企业名",
@@ -64,7 +64,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViI
 POST http://127.0.0.1:8000/names/generate
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+Authorization: Bearer {{access_token}}
 
 {
   "category": "企业名",
@@ -77,7 +77,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViI
 POST http://127.0.0.1:8000/names/feedback
 Accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+Authorization: Bearer {{access_token}}
 
 {
   "thread_id": "e7fa7364-a124-4a84-b08e-1281095fb374",
@@ -89,7 +89,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViI
 ### 第一轮：首次起名
 POST http://127.0.0.1:8000/names/generate
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+Authorization: Bearer {{access_token}}
 
 {
   "category": "企业名",
@@ -104,7 +104,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViI
 ###
 POST http://127.0.0.1:8000/knowledge/upload
 Content-Type: multipart/form-data; boundary=WebAppBoundary
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyIiwic3ViIjoiMSJ9.7MCNoN0nwy3IIPSMVLlxqj7HNATjOBWMkv0LuAcxuIM
+Authorization: Bearer {{access_token}}
 
 --WebAppBoundary
 Content-Disposition: form-data; name="file"; filename="company_rules.txt"
@@ -112,6 +112,55 @@ Content-Type: text/plain
 
 < ./company_rules.txt
 --WebAppBoundary--
+
+### 个人/宝宝起名（八字五行为可选传统文化参考）
+POST http://127.0.0.1:8000/names/generate
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "category": "个人/宝宝起名",
+  "surname": "林",
+  "gender": "女",
+  "length": "三字姓名",
+  "preferred_classics": ["诗经", "楚辞"],
+  "use_bazi": true,
+  "birth_info": {
+    "birth_date": "2026-06-18",
+    "birth_time": "08:30",
+    "birth_place": "杭州",
+    "calendar_type": "公历"
+  },
+  "other": "清雅但不生僻",
+  "exclude": ["梓"]
+}
+
+### 商业/品牌起名
+POST http://127.0.0.1:8000/names/generate
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "category": "商业/品牌起名",
+  "industry": "家庭陪伴机器人",
+  "competitors": ["小度", "天猫精灵"],
+  "brand_tone": ["科技感", "亲和力", "可信赖"],
+  "length": "2到4个汉字",
+  "other": "面向有儿童的年轻家庭"
+}
+
+### 宠物/虚拟 IP 起名
+POST http://127.0.0.1:8000/names/generate
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "category": "宠物/虚拟IP起名",
+  "ip_type": "水獭形象的环保科普 IP",
+  "personality": ["好奇", "话痨", "爱收集瓶盖"],
+  "length": "2到3个字",
+  "other": "适合短视频传播，可以自然衍生昵称"
+}
 
 
 

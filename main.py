@@ -1,8 +1,12 @@
 from fastapi import FastAPI,Depends
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi_mail import FastMail, MessageSchema, MessageType
 from routers.auth_router import router as auth_router
 from routers.name_router import router as name_router
 from routers.rag_router import router as rag_router
+from routers.validation_router import router as validation_router
+from routers.community_router import router as community_router
 
 from contextlib import asynccontextmanager
 from core.workflow import init_workflow_graph, close_workflow_graph
@@ -16,6 +20,7 @@ async def lifespan(app: FastAPI):
     await close_workflow_graph()
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import settings
 
 
 
@@ -37,8 +42,13 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(name_router)
 app.include_router(rag_router)
+app.include_router(validation_router)
+app.include_router(community_router)
 @app.get("/")
 async def root():
+    index_file = settings.BASE_DIR / "frontend" / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
     return {"message": "Hello World"}
 
 
@@ -58,4 +68,9 @@ async def mail_test(email:str,mail:FastMail=Depends(get_email)):
 
         await  mail.send_message(message)
         return {"message": "邮件发送成功！"}
+
+
+frontend_dir = settings.BASE_DIR / "frontend"
+if frontend_dir.exists():
+    app.mount("/", StaticFiles(directory=frontend_dir), name="frontend")
 

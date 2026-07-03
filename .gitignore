@@ -5,3 +5,5 @@ __pycache__/
 .venv/
 uploads/
 chroma_rag_db/
+.idea/
+tmp/
